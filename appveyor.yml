@@ -1,10 +1,21 @@
-version: 1.0.{build}
-
-image: Visual Studio 2022
+build:
+  # Switch to 'Script' mode to avoid MSBuild
+  mode: Script
 
 environment:
   PYTHON_VERSION: "3.12"
 
+
+  # Upgrade pip and install setuptools and wheel for building
+  - python -m pip install --upgrade pip
+  - python -m pip install setuptools wheel
+
+  # Clone tgcrypto repository
+  - git clone https://github.com/pyrogram/tgcrypto.git C:\projects\tgcrypto_new
+  - cd C:\projects\tgcrypto_new
+
+  # Build tgcrypto
+  - python setup.py bdist_wheel
 
 artifacts:
   # Upload the tgcrypto built .whl file from the dist folder
