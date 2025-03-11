@@ -5,35 +5,10 @@ image: Visual Studio 2022
 environment:
   PYTHON_VERSION: "3.12"
 
-install:
-  # Upgrade Chocolatey
-  - choco upgrade chocolatey -y
-  - RefreshEnv
-
-  # Install necessary dependencies
-  - choco install visualstudio2022buildtools -y
-  - choco install vcredist140 -y
-  - RefreshEnv
-
-  # Upgrade pip
-  - python -m pip install --upgrade pip
-  - python -m pip install setuptools wheel
-
-  # Clone tgcrypto repository from Pyrogram GitHub
-  - git clone https://github.com/pyrogram/tgcrypto.git C:\projects\tgcrypto_new
-
-  # Navigate to the tgcrypto directory
-  - cd C:\projects\tgcrypto_new
-  
-  # Build the tgcrypto wheel using pip
-  - python setup.py bdist_wheel
-
-  # Install tgcrypto
-  - python -m pip install tgcrypto
 
 artifacts:
   # Upload the tgcrypto built .whl file from the dist folder
-  - path: C:\projects\tgcrypto_new\dist\*.whl
+  - path: C:\projects\tgcrypto_new\dist\tgcrypto-1.2.5-cp312-cp312-win32.whl
     name: tgcrypto_wheel
 
 test_script:
