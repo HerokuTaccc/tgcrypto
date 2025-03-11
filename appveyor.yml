@@ -12,13 +12,12 @@ install:
 
   # Install necessary dependencies
   - choco install visualstudio2022buildtools -y
-  - choco install cmake -y
-  - choco install ninja -y
   - choco install vcredist140 -y
   - RefreshEnv
 
   # Upgrade pip
   - python -m pip install --upgrade pip
+  - python -m pip install setuptools wheel
 
   # Clone tgcrypto repository from Pyrogram GitHub
   - git clone https://github.com/pyrogram/tgcrypto.git C:\projects\tgcrypto_new
