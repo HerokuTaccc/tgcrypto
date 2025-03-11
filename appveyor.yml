@@ -1,19 +1,50 @@
-version: 1.0.{build}
-image: Visual Studio 2022
+# AppVeyor configuration file for building tgcrypto
+
+# Define the environment
 environment:
-  PYTHON: "C:\\Python312"  # Change to the required Python version
+  matrix:
+    - PYTHON_VERSION: "3.12.0"
 
 install:
-  - cmd: choco install python --version=3.12.0
-  - cmd: setx PATH "%PYTHON%;%PYTHON%\\Scripts;%PATH%"
-  - cmd: pip install wheel setuptools
-  - cmd: pip install -r requirements.txt
+  # Uninstall any previous Python versions to prevent conflicts
+  - choco uninstall python --yes
+  - choco uninstall python3 --yes
+  - choco uninstall python312 --yes
+  - RefreshEnv
 
-build_script:
-  - cmd: python -m pip install --upgrade pip
-  - cmd: python -m pip install tgcrypto --no-cache-dir
+  # Install Python 3.12.0
+  - choco install python312 --version=3.12.0 -y
+  - RefreshEnv
+
+  # Verify Python installation
+  - python --version
+  - pip --version
+
+  # Upgrade pip, setuptools, and wheel
+  - python -m pip install --upgrade pip setuptools wheel
+
+  # Install build dependencies
+  - python -m pip install cython
+  - python -m pip install --upgrade build
+
+  # Clone the tgcrypto repository (or download the source code)
+  - git clone https://github.com/pyrogram/tgcrypto.git
+  - cd tgcrypto
+
+  # Build the wheel
+  - python setup.py bdist_wheel
+
+  # Install the built wheel
+  - python -m pip install dist/*.whl
+
+  # Verify installation
+  - python -c "import tgcrypto; print('TgCrypto installed successfully')"
 
 artifacts:
-  - path: "C:\\Users\\appveyor\\AppData\\Local\\pip\\Cache\\wheels\\*.whl"
-    name: tgcrypto_whl
+  - path: tgcrypto/dist/*.whl
+    name: tgcrypto_wheel
 
+build: off  # No separate build step
+
+test_script:
+  - python -m unittest discover -s tests
