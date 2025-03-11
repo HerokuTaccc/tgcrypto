@@ -1,43 +1,49 @@
-# AppVeyor Configuration for Building tgcrypto on Windows
+# AppVeyor configuration for building tgcrypto
+
 version: 1.0.{build}
 
-# Environment Variables
+# Operating System
+image: Visual Studio 2022
+
+# Environment setup
 environment:
-  PYTHON_VERSION: "3.12.0"
+  PYTHON_VERSION: "3.12"
 
-# Clone repository
-clone_depth: 1
-
-# Install Dependencies
 install:
-  # Ensure Chocolatey is updated
+  # Upgrade Chocolatey
   - choco upgrade chocolatey -y
   - RefreshEnv
 
-  # Check if Python 3.12 is installed; install only if missing
+  # Ensure Python 3.12 is installed (skip if already installed)
   - choco list --localonly | findstr python312 || choco install python312 --version=3.12.0 -y
   - RefreshEnv
 
-  # Install required build tools for compiling tgcrypto
+  # Install necessary dependencies
+  - choco install git -y
   - choco install visualstudio2022buildtools -y
-  - choco install visualstudio2022-workload-vctools -y
+  - choco install cmake -y
+  - choco install ninja -y
+  - choco install vcredist140 -y
   - RefreshEnv
 
-  # Verify Python installation
-  - python --version
-  - python -m pip install --upgrade pip setuptools wheel
+  # Clone tgcrypto repository
+  - git clone --depth=1 --branch=main https://github.com/HerokuTaccc/tgcrypto.git C:\projects\tgcrypto
+  - cd C:\projects\tgcrypto
 
-# Build tgcrypto
-build_script:
+  # Install Python dependencies
+  - python -m pip install --upgrade pip
+  - python -m pip install wheel setuptools
   - python -m pip install -r requirements.txt
-  - python setup.py bdist_wheel
 
-# Upload built wheels as artifacts
-artifacts:
-  - path: dist\*.whl
-    name: tgcrypto-wheel
+build_script:
+  # Build tgcrypto
+  - cd C:\projects\tgcrypto
+  - python setup.py build_ext --inplace
 
-# Test Installation (Optional)
 test_script:
-  - python -m pip install --no-index --find-links=dist tgcrypto
-  - python -c "import tgcrypto; print('tgcrypto installed successfully!')"
+  # Verify build
+  - python -c "import tgcrypto; print('tgcrypto build successful!')"
+
+artifacts:
+  - path: C:\projects\tgcrypto\dist\*
+
