@@ -1,51 +1,43 @@
-# AppVeyor Configuration for Building TgCrypto on Windows
+# AppVeyor Configuration for Building tgcrypto on Windows
 version: 1.0.{build}
-
-# Build environment
-image: Visual Studio 2022
 
 # Environment Variables
 environment:
   PYTHON_VERSION: "3.12.0"
 
-# Install dependencies
+# Clone repository
+clone_depth: 1
+
+# Install Dependencies
 install:
-  # Ensure Chocolatey is up-to-date
+  # Ensure Chocolatey is updated
   - choco upgrade chocolatey -y
   - RefreshEnv
 
-  # Uninstall existing Python if installed via Chocolatey
-  - choco list --localonly | findstr python && choco uninstall python --yes || echo "Python not found, skipping uninstall"
-  - choco list --localonly | findstr python3 && choco uninstall python3 --yes || echo "Python3 not found, skipping uninstall"
-  - choco list --localonly | findstr python312 && choco uninstall python312 --yes || echo "Python 3.12 not found, skipping uninstall"
+  # Check if Python 3.12 is installed; install only if missing
+  - choco list --localonly | findstr python312 || choco install python312 --version=3.12.0 -y
   - RefreshEnv
 
-  # Install Python 3.12.0 and required build tools
-  - choco install python312 --version=3.12.0 -y
-  - choco install visualstudio2019buildtools -y
-  - choco install visualstudio2019-workload-vctools -y
+  # Install required build tools for compiling tgcrypto
+  - choco install visualstudio2022buildtools -y
+  - choco install visualstudio2022-workload-vctools -y
   - RefreshEnv
 
   # Verify Python installation
   - python --version
   - python -m pip install --upgrade pip setuptools wheel
 
-# Build script
+# Build tgcrypto
 build_script:
-  - git clone https://github.com/telegramdesktop/tgcrypto.git
-  - cd tgcrypto
   - python -m pip install -r requirements.txt
   - python setup.py bdist_wheel
 
-# Artifacts (Upload built wheel)
+# Upload built wheels as artifacts
 artifacts:
-  - path: tgcrypto/dist/*.whl
+  - path: dist\*.whl
     name: tgcrypto-wheel
 
-# Test script
+# Test Installation (Optional)
 test_script:
-  - python -m pip install tgcrypto --no-index --find-links=tgcrypto/dist
-  - python -c "import tgcrypto; print('TgCrypto successfully imported!')"
-
-# Deployment (optional)
-deploy: off
+  - python -m pip install --no-index --find-links=dist tgcrypto
+  - python -c "import tgcrypto; print('tgcrypto installed successfully!')"
