@@ -1,5 +1,3 @@
-# AppVeyor configuration for installing tgcrypto
-
 version: 1.0.{build}
 
 image: Visual Studio 2022
@@ -12,7 +10,6 @@ install:
   - choco upgrade chocolatey -y
   - RefreshEnv
 
-
   # Install necessary dependencies
   - choco install visualstudio2022buildtools -y
   - choco install cmake -y
@@ -20,10 +17,26 @@ install:
   - choco install vcredist140 -y
   - RefreshEnv
 
-  # Upgrade pip and install tgcrypto
+  # Upgrade pip
   - python -m pip install --upgrade pip
+
+  # Clone tgcrypto repository from Pyrogram GitHub
+  - git clone https://github.com/pyrogram/tgcrypto.git C:\projects\tgcrypto
+
+  # Navigate to the tgcrypto directory
+  - cd C:\projects\tgcrypto
+
+  # Build the tgcrypto wheel using pip
+  - python setup.py bdist_wheel
+
+  # Install tgcrypto
   - python -m pip install tgcrypto
 
+artifacts:
+  # Upload the tgcrypto built .whl file from the dist folder
+  - path: C:\projects\tgcrypto\dist\*.whl
+    name: tgcrypto_wheel
+
 test_script:
-  # Verify tgcrypto installation
+  # Verify tgcrypto installation by importing it
   - python -c "import tgcrypto; print('tgcrypto installed successfully!')"
