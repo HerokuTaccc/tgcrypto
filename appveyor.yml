@@ -1,0 +1,19 @@
+version: 1.0.{build}
+image: Visual Studio 2022
+environment:
+  PYTHON: "C:\\Python312"  # Change to the required Python version
+
+install:
+  - cmd: choco install python --version=3.12.0
+  - cmd: setx PATH "%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - cmd: pip install wheel setuptools
+  - cmd: pip install -r requirements.txt
+
+build_script:
+  - cmd: python -m pip install --upgrade pip
+  - cmd: python -m pip install tgcrypto --no-cache-dir
+
+artifacts:
+  - path: "C:\\Users\\appveyor\\AppData\\Local\\pip\\Cache\\wheels\\*.whl"
+    name: tgcrypto_whl
+
