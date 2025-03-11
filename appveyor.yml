@@ -1,11 +1,9 @@
-# AppVeyor configuration for building tgcrypto
+# AppVeyor configuration for installing tgcrypto
 
 version: 1.0.{build}
 
-# Operating System
 image: Visual Studio 2022
 
-# Environment setup
 environment:
   PYTHON_VERSION: "3.12"
 
@@ -14,36 +12,18 @@ install:
   - choco upgrade chocolatey -y
   - RefreshEnv
 
-  # Ensure Python 3.12 is installed (skip if already installed)
-  - choco list --localonly | findstr python312 || choco install python312 --version=3.12.0 -y
-  - RefreshEnv
 
   # Install necessary dependencies
-  - choco install git -y
   - choco install visualstudio2022buildtools -y
   - choco install cmake -y
   - choco install ninja -y
   - choco install vcredist140 -y
   - RefreshEnv
 
-  # Clone tgcrypto repository
-  - git clone --depth=1 --branch=main https://github.com/HerokuTaccc/tgcrypto.git C:\projects\tgcrypto
-  - cd C:\projects\tgcrypto
-
-  # Install Python dependencies
+  # Upgrade pip and install tgcrypto
   - python -m pip install --upgrade pip
-  - python -m pip install wheel setuptools
-  - python -m pip install -r requirements.txt
-
-build_script:
-  # Build tgcrypto
-  - cd C:\projects\tgcrypto
-  - python setup.py build_ext --inplace
+  - python -m pip install tgcrypto
 
 test_script:
-  # Verify build
-  - python -c "import tgcrypto; print('tgcrypto build successful!')"
-
-artifacts:
-  - path: C:\projects\tgcrypto\dist\*
-
+  # Verify tgcrypto installation
+  - python -c "import tgcrypto; print('tgcrypto installed successfully!')"
