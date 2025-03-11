@@ -21,11 +21,11 @@ install:
   - python -m pip install --upgrade pip
 
   # Clone tgcrypto repository from Pyrogram GitHub
-  - git clone https://github.com/pyrogram/tgcrypto.git C:\projects\tgcrypto
+  - git clone https://github.com/pyrogram/tgcrypto.git C:\projects\tgcrypto_new
 
   # Navigate to the tgcrypto directory
-  - cd C:\projects\tgcrypto
-
+  - cd C:\projects\tgcrypto_new
+  
   # Build the tgcrypto wheel using pip
   - python setup.py bdist_wheel
 
@@ -34,7 +34,7 @@ install:
 
 artifacts:
   # Upload the tgcrypto built .whl file from the dist folder
-  - path: C:\projects\tgcrypto\dist\*.whl
+  - path: C:\projects\tgcrypto_new\dist\*.whl
     name: tgcrypto_wheel
 
 test_script:
